@@ -61,15 +61,16 @@ To run this project locally, follow these steps:
 
 ## Usage
 
-Explain how to use your project here. Provide examples of commands, input formats, or any other relevant information that users might need to interact with your project effectively.
+This project will present Top bikers in a given area. I will present NYC, but with placing coordinates in any area where Strava data is recorded; you can then see it in that area.
 
 ## Data Collection
 
-Describe how you retrieve data from the Strava API and perform web scraping using Beautiful Soup. Provide an overview of the logic, algorithms, or methods used for data extraction.
+Contact Stava API to find all segments in given area
+Scrape Stravas site to get all athlete info
 
 ## Data Visualization
 
-Explain how the collected data is visualized using Python's data visualization libraries. You can include sample code snippets, descriptions of different visualization techniques used, and any insights that can be gained from the visualizations.
+TBD
 
 ## Contributing
 
