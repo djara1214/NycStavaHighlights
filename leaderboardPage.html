@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Strava Leaderboards</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute;
+        top: 0;
+        bottom: 0; 
+        width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+	mapboxgl.accessToken = 'MAPBOX_KEY_GOES_HERE';
+    const map = new mapboxgl.Map({
+        container: 'map', // container ID
+        center: [-73.88977271965885,40.69681157653693], // starting position [lng, lat]
+        zoom: 10.33 // starting zoom
+    });
+</script>
+<script>
+//Grab Data files
+    Promise.all([
+        fetch('./coord_json.geojson').then(response => response.json()),
+        fetch('./smallUserData_TESTER_LARGE.json').then(response => response.json())
+    ]).then(([geojsonData, additionalData]) => {
+        map.on('load', function () {
+            map.addSource('route', {
+                type: 'geojson',
+                data: geojsonData
+            });
+
+            map.addLayer({
+                id: 'route',
+                type: 'line',
+                source: 'route',
+                layout: {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                paint: {
+                    'line-color': '#888',
+                    'line-width': 4
+                }
+            });
+
+            // Click Route
+            map.on('click', 'route', function (e) {
+                var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
+
+                if (features.length > 0) {
+                    var segNum = features[0].properties.SegNum;
+                    var segname = features[0].properties.SegName;
+
+                    // Find all additional data for the segment
+                    var matchedData = additionalData.filter(data => data.SegNum === segNum);
+
+                    if (matchedData.length > 0) {
+                        // Create a popup with a table
+                        console.log(matchedData.length)
+                        new mapboxgl.Popup({ maxWidth: '400px', maxHeight: '300px' })
+                            .setLngLat(e.lngLat)
+                            .setHTML(getPopupHTML(matchedData,segname))
+                            .addTo(map);
+                    }
+                }
+            });
+
+            // Reset cursor
+            map.on('mouseout', 'route', function () {
+                map.getCanvas().style.cursor = '';
+            });
+        });
+    });
+
+// Generate HTML content for the popup - Will be a table
+        function getPopupHTML(dataArray,segname) {
+                var html = '<h3>'+segname+'</h3>';
+                html += '<table>';
+                html += '<thead><tr><th>Rank</th><th>Athlete Name</th><th>Speed</th><th>Time</th><th>Date</th></tr></thead>';
+                html += '<tbody>';
+                
+                dataArray.forEach(data => {
+                    html += '<tr>';
+                        html += '<td>' + data.rank + '</td>';
+                    html += '<td>' + data.athlete_name + '</td>';
+                    html += '<td>' + data.speed + '</td>';
+                    html += '<td>' + data.time + '</td>';
+                    html += '<td>' + data.date + '</td>';
+                    html += '</tr>';
+                });
+
+                html += '</tbody>';
+                html += '</table>';
+                return html;
+            }
+
+
+</script>
+
+</body>
+</html>
