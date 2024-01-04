@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Strava Leaderboards</title>
+<title>Display a map on a webpage</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
@@ -17,15 +17,15 @@ body { margin: 0; padding: 0; }
 <body>
 <div id="map"></div>
 <script>
-	mapboxgl.accessToken = 'MAPBOX_KEY_GOES_HERE';
+	mapboxgl.accessToken = 'mapBox_API_Key';
     const map = new mapboxgl.Map({
-        container: 'map', // container ID
+        container: 'map',
         center: [-73.88977271965885,40.69681157653693], // starting position [lng, lat]
         zoom: 10.33 // starting zoom
     });
 </script>
 <script>
-//Grab Data files
+
     Promise.all([
         fetch('./coord_json.geojson').then(response => response.json()),
         fetch('./smallUserData_TESTER_LARGE.json').then(response => response.json())
@@ -50,7 +50,32 @@ body { margin: 0; padding: 0; }
                 }
             });
 
-            // Click Route
+// Present loaction data on mouse hover, leaves when not hovering 
+            const previewLocation = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+            map.on('mouseenter', 'route', function (e) {
+                map.getCanvas().style.cursor = 'pointer';
+
+                var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
+
+                var segname = features[0].properties.SegName;
+                console.log("Hovering over: "+segname)
+                html='<h1>'+'Segment: '+'</h1>';
+                html+='<h2>'+segname+'</h2>';
+                console.log("HOVER HTML: "+html)
+                previewLocation.setLngLat(e.lngLat).setHTML(html).addTo(map);
+                
+                
+            });
+
+            map.on('mouseleave', 'route', () => {
+                map.getCanvas().style.cursor = '';
+                previewLocation.remove();
+            });
+
+// Present table when royte is clicked 
             map.on('click', 'route', function (e) {
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
 
@@ -72,14 +97,14 @@ body { margin: 0; padding: 0; }
                 }
             });
 
-            // Reset cursor
+            // Reset cursor on mouseout
             map.on('mouseout', 'route', function () {
                 map.getCanvas().style.cursor = '';
             });
         });
     });
 
-// Generate HTML content for the popup - Will be a table
+// Function to generate HTML content for the popup with a table
         function getPopupHTML(dataArray,segname) {
                 var html = '<h3>'+segname+'</h3>';
                 html += '<table>';
@@ -100,8 +125,6 @@ body { margin: 0; padding: 0; }
                 html += '</table>';
                 return html;
             }
-
-
 </script>
 
 </body>
