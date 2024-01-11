@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Display a map on a webpage</title>
+<title>NYC Strava leaders</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
@@ -17,7 +17,7 @@ body { margin: 0; padding: 0; }
 <body>
 <div id="map"></div>
 <script>
-	mapboxgl.accessToken = 'mapBox_API_Key';
+	mapboxgl.accessToken = 'MAPPBOX_KEY';
     const map = new mapboxgl.Map({
         container: 'map',
         center: [-73.88977271965885,40.69681157653693], // starting position [lng, lat]
@@ -55,39 +55,83 @@ body { margin: 0; padding: 0; }
                 closeButton: false,
                 closeOnClick: false
             });
+
+// Hover Over Route
+// Show Segment name if  NO Leaders are avalible
+// Show Segment, KOM name and time if data is avalible
+
             map.on('mouseenter', 'route', function (e) {
                 map.getCanvas().style.cursor = 'pointer';
-
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
 
                 var segname = features[0].properties.SegName;
-                console.log("Hovering over: "+segname)
-                html='<h1>'+'Segment: '+'</h1>';
-                html+='<h2>'+segname+'</h2>';
-                console.log("HOVER HTML: "+html)
-                previewLocation.setLngLat(e.lngLat).setHTML(html).addTo(map);
-                
-                
+                var segNum = features[0].properties.SegNum;
+                // Find matching 'SegNum' in the second JSON file
+                var matchingEntry = additionalData.find(entry => entry.SegNum === segNum && entry.rank === 1);
+
+                // Highlight the route by changing the line color to RED on HOVER
+                map.setPaintProperty('route', 'line-color', ['case', ['==', ['get', 'SegNum'], segNum], '#e80505', '#888']);
+
+                if (matchingEntry) {
+                    // Retrieve information 'athlete_name' and 'time'
+                    var athleteName = matchingEntry.athlete_name;
+                    var time = matchingEntry.time;
+
+                    // Create a styled HTML string for the popup content        ATHLETE AVALIBLE ONLY
+                    var popupContent = `
+                        <div style="text-align: center;">
+                            <h2 style="margin: 5px 0;">${segname}</h2>
+                            <hr style="border: 0.5px solid #ccc; margin: 10px 0;">
+                            <h4 style="margin: 5px 0;">&#128690 KOM  : ${athleteName}</h4>
+                            <h4 style="margin: 5px 0;">Time: ${time}</h4>
+                        </div>
+                    `;
+
+                        // Set the HTML content and add the popup to the map
+                        previewLocation.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
+                }
+                else {
+                    var popupContent = `
+                    <div style="text-align: center;">
+                        <h2 style="margin: 5px 0;">${segname}</h2>
+                        <hr style="border: 0.5px solid #ccc; margin: 10px 0;">
+                    </div>
+                    `;
+
+                    // Set the HTML content and add the popup to the map
+                    previewLocation.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
+                }
+
             });
 
+            //Remove popup when mouse leaves route
+            //Revert Color to Gray if RED is shown on route
             map.on('mouseleave', 'route', () => {
                 map.getCanvas().style.cursor = '';
+                currColor=map.getPaintProperty('route','line-color');
+                if (currColor[2] =='#e80505')
+                {
+                    map.setPaintProperty('route', 'line-color', '#888');
+                }
                 previewLocation.remove();
             });
 
-// Present table when royte is clicked 
+            // Present table when route is clicked 
             map.on('click', 'route', function (e) {
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
 
+                // If route is found on map(clicked) Change color to Yellow
                 if (features.length > 0) {
                     var segNum = features[0].properties.SegNum;
                     var segname = features[0].properties.SegName;
+                    map.setPaintProperty('route', 'line-color', ['case', ['==', ['get', 'SegNum'], segNum], '#e8d905', '#888']);
+
 
                     // Find all additional data for the segment
                     var matchedData = additionalData.filter(data => data.SegNum === segNum);
 
+                    // If we have data, show it in popup table when clicked
                     if (matchedData.length > 0) {
-                        // Create a popup with a table
                         console.log(matchedData.length)
                         new mapboxgl.Popup({ maxWidth: '400px', maxHeight: '300px' })
                             .setLngLat(e.lngLat)
@@ -100,9 +144,20 @@ body { margin: 0; padding: 0; }
             // Reset cursor on mouseout
             map.on('mouseout', 'route', function () {
                 map.getCanvas().style.cursor = '';
+
+            });
+            // Revert the line color to the original color when clicked out
+            map.on('click', function (e) {
+                var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
+                currColor=map.getPaintProperty('route','line-color');
+
+                if (features.length == 0){
+                    map.setPaintProperty('route', 'line-color', '#888');
+                }
             });
         });
     });
+
 
 // Function to generate HTML content for the popup with a table
         function getPopupHTML(dataArray,segname) {
@@ -124,7 +179,7 @@ body { margin: 0; padding: 0; }
                 html += '</tbody>';
                 html += '</table>';
                 return html;
-            }
+        }
 </script>
 
 </body>
