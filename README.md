@@ -1,9 +1,13 @@
 # NYC Top Bikers Data Visualization Project
 
-Welcome to the **NYC Top Bikers Data Visualization Project** GitHub repository! This project focuses on using Python to retrieve and visualize data about the top bikers in New York City using the Strava API, web scraping, and Beautiful Soup.
+Welcome to the **NYC Top Bikers Data Visualization Project** GitHub repository! This project focuses on the top bikers in New York City who use Strava. I will be using Strava API (acess via Postman and Python), web scraping with Beautiful Soup, Python for some data retival and EDL, and HTML to run MapBox for presentation purposes.
+
+![image](https://github.com/djara1214/NycStravaHighlights/assets/44910053/d6cd5628-71d9-44dd-aec8-41d468b4bcbd)
+
+
 
 ⚠️This project is a work in progress⚠️
-## ⚠️Currently in phase 1⚠️
+## ⚠️Currently in phase 2⚠️
 
 ## Table of Contents
 
@@ -21,7 +25,7 @@ The primary goal of this project is to showcase the top bikers in New York City 
 
 1. **Data Collection**: Utilizing the Strava API, we retrieve segment numbers that represent popular biking routes in New York City. Then, by employing web scraping techniques with Beautiful Soup, we extract leader board data for these segments.
 
-2. **Data Visualization**: Once the data is collected, we leverage Python's data visualization libraries (e.g., Matplotlib, Plotly) to create informative and engaging visualizations that showcase the top bikers and their achievements on the identified segments.
+2. **Data Visualization**: Once the data is collected, I will also leverage Python's data visualization libraries (e.g., Matplotlib, Plotly) to create informative and engaging visualizations that showcase the top bikers and their achievements on the identified segments. In addition to python, I will use MAPBOX GL-JS to plot all biking segments in NYC. All Segment data will be shown **at** **once** and showcase their top riders. Something hard to do on Stravas own website.
 
 ## Installation
 
@@ -70,7 +74,9 @@ Scrape Stravas site to get all athlete info
 
 ## Data Visualization
 
-TBD
+MapBox GL-JS
+Using this service I will plot converted Strava API data to geo json and present **all** segments at one time. Making each segment clickable with data presentation at hovering and clicking. 
+
 
 ## Contributing
 
