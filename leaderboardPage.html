@@ -15,9 +15,119 @@ body { margin: 0; padding: 0; }
 </style>
 </head>
 <body>
-<div id="map"></div>
+
+<style>
+
+    .rounded-rect {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 50px -25px black;
+    }
+     
+    .flex-center {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+     
+    .flex-center.left {
+        left: 0px;
+    }
+     
+    .flex-center.right {
+        right: 0px;
+    }
+     
+    .sidebar-content {
+        position: absolute;
+        width: 95%;
+        height: 95%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        color: gray;
+        /* overflow: auto; */
+        padding: 10px;
+        white-space: nowrap; 
+    }
+    #right-sidebar-table {
+    max-width: 88%; 
+    max-height: 90%; 
+    overflow-y: auto; 
+    }
+     
+    .sidebar-toggle {
+        position: absolute;
+        width: 1.3em;
+        height: 1.3em;
+        overflow: visible;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+     
+    .sidebar-toggle.left {
+        right: -1.5em;
+    }
+     
+    .sidebar-toggle.right {
+        left: -2.5em;
+    }
+     
+    .sidebar-toggle:hover {
+        color: #0aa1cf;
+        cursor: pointer;
+    }
+     
+    .sidebarLEFT {
+        transition: transform 1s;
+        z-index: 1;
+        width: 300px;
+        height: 100%;
+    }
+    .sidebarRIGHT {
+        transition: transform 1s;
+        z-index: 1;
+        width: 750px;
+        height: 100%;
+    }
+     
+    /*
+    toggleSidebar(id) - will open / start as collapsed
+    */
+    .left.collapsed {
+        transform: translateX(-295px);
+    }
+     
+    .right.collapsed {
+        transform: translateX(735px);
+    }
+
+</style>
+
+
+<div id="map">
+
+    <div id="left" class="sidebarLEFT flex-center left collapsed">
+
+        <div class="sidebar-content rounded-rect flex-center">           
+            Left Sidebar <div class="sidebar-toggle rounded-rect left" onclick="toggleSidebar('left')" >&rarr;</div>
+        </div>
+
+    </div>
+
+    <div id="right" class="sidebarRIGHT flex-center right collapsed">
+
+        <div class="sidebar-content rounded-rect flex-center">
+            <div class="sidebar-toggle rounded-rect right" onclick="toggleSidebar('right')" >&larr;</div>
+            <div id="right-sidebar-table"></div>
+        </div>
+
+    </div>
+
+</div>     
 <script>
-	mapboxgl.accessToken = 'MAPPBOX_KEY';
+	mapboxgl.accessToken = 'MYKEY';
     const map = new mapboxgl.Map({
         container: 'map',
         center: [-73.88977271965885,40.69681157653693], // starting position [lng, lat]
@@ -28,7 +138,7 @@ body { margin: 0; padding: 0; }
 
     Promise.all([
         fetch('./coord_json.geojson').then(response => response.json()),
-        fetch('./smallUserData_TESTER_LARGE.json').then(response => response.json())
+        fetch('./AllRiderDataUpTo5_1__1353_FINAL_FIRSTsegTtl.json').then(response => response.json())
     ]).then(([geojsonData, additionalData]) => {
         map.on('load', function () {
             map.addSource('route', {
@@ -50,34 +160,34 @@ body { margin: 0; padding: 0; }
                 }
             });
 
-// Present loaction data on mouse hover, leaves when not hovering 
+// Present loaction data on mouse hover, leaves when not hovering       //GOOD
             const previewLocation = new mapboxgl.Popup({
                 closeButton: false,
-                closeOnClick: false
+                closeOnClick: true
             });
-
-// Hover Over Route
-// Show Segment name if  NO Leaders are avalible
-// Show Segment, KOM name and time if data is avalible
-
             map.on('mouseenter', 'route', function (e) {
                 map.getCanvas().style.cursor = 'pointer';
+                
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
+                
 
                 var segname = features[0].properties.SegName;
+                
                 var segNum = features[0].properties.SegNum;
-                // Find matching 'SegNum' in the second JSON file
+                  // Find matching 'SegNum' in the second JSON file
                 var matchingEntry = additionalData.find(entry => entry.SegNum === segNum && entry.rank === 1);
 
-                // Highlight the route by changing the line color to RED on HOVER
+                var currColor=map.getPaintProperty('route','line-color');
+                if (currColor != '#e8d905'){
                 map.setPaintProperty('route', 'line-color', ['case', ['==', ['get', 'SegNum'], segNum], '#e80505', '#888']);
+                }
 
                 if (matchingEntry) {
                     // Retrieve information 'athlete_name' and 'time'
                     var athleteName = matchingEntry.athlete_name;
                     var time = matchingEntry.time;
 
-                    // Create a styled HTML string for the popup content        ATHLETE AVALIBLE ONLY
+                    // Styled HTML popup content - Hover Over quick info
                     var popupContent = `
                         <div style="text-align: center;">
                             <h2 style="margin: 5px 0;">${segname}</h2>
@@ -87,7 +197,7 @@ body { margin: 0; padding: 0; }
                         </div>
                     `;
 
-                        // Set the HTML content and add the popup to the map
+                        // add the popup to the map w/ HTML data
                         previewLocation.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
                 }
                 else {
@@ -98,68 +208,84 @@ body { margin: 0; padding: 0; }
                     </div>
                     `;
 
-                    // Set the HTML content and add the popup to the map
+                    // add the popup to the map w/ HTML data
                     previewLocation.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
                 }
 
+                
+                
             });
-
-            //Remove popup when mouse leaves route
-            //Revert Color to Gray if RED is shown on route
+            //Exit Hover Over -> change back to gray and remove popup   
             map.on('mouseleave', 'route', () => {
                 map.getCanvas().style.cursor = '';
-                currColor=map.getPaintProperty('route','line-color');
-                if (currColor[2] =='#e80505')
+                var currColor=map.getPaintProperty('route','line-color');
+                
+                
+                if (currColor[2] ==='#e80505')///red
                 {
                     map.setPaintProperty('route', 'line-color', '#888');
                 }
+
                 previewLocation.remove();
+
             });
 
             // Present table when route is clicked 
             map.on('click', 'route', function (e) {
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
 
-                // If route is found on map(clicked) Change color to Yellow
                 if (features.length > 0) {
                     var segNum = features[0].properties.SegNum;
                     var segname = features[0].properties.SegName;
                     map.setPaintProperty('route', 'line-color', ['case', ['==', ['get', 'SegNum'], segNum], '#e8d905', '#888']);
 
-
-                    // Find all additional data for the segment
                     var matchedData = additionalData.filter(data => data.SegNum === segNum);
 
-                    // If we have data, show it in popup table when clicked
                     if (matchedData.length > 0) {
-                        console.log(matchedData.length)
-                        new mapboxgl.Popup({ maxWidth: '400px', maxHeight: '300px' })
-                            .setLngLat(e.lngLat)
-                            .setHTML(getPopupHTML(matchedData,segname))
-                            .addTo(map);
+                        // Update the right sidebar table content
+                                        
+                        var tableContainer = document.getElementById('right-sidebar-table');
+                        tableContainer.innerHTML = getPopupHTML(matchedData, segname);
+                        toggleSidebar('right');
+
+                    }
+                        
+                    
+                    else {
+  
+                        tableContainer.innerHTML = 'No data available for this segment.';
                     }
                 }
-            });
 
-            // Reset cursor on mouseout
-            map.on('mouseout', 'route', function () {
+    });
+
+                // Reset cursor on mouseout
+                map.on('mouseout', 'route', function () {
                 map.getCanvas().style.cursor = '';
 
             });
-            // Revert the line color to the original color when clicked out
+
+
+
+
             map.on('click', function (e) {
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
-                currColor=map.getPaintProperty('route','line-color');
 
-                if (features.length == 0){
+                // change back the line color to the original color when clicked out
+                currColor=map.getPaintProperty('route','line-color');
+                if (features.length == 0)
+                {
+                    toggleSidebar('right')
                     map.setPaintProperty('route', 'line-color', '#888');
                 }
+                
+                
             });
-        });
-    });
+});
+});
 
 
-// Function to generate HTML content for the popup with a table
+// generate HTML content for the popup with a table
         function getPopupHTML(dataArray,segname) {
                 var html = '<h3>'+segname+'</h3>';
                 html += '<table>';
@@ -180,6 +306,45 @@ body { margin: 0; padding: 0; }
                 html += '</table>';
                 return html;
         }
+// popout right sidebar 
+        function toggleSidebar(id) 
+            {
+
+                var elem = document.getElementById(id);
+                var classes = elem.className.split(' ');
+                var collapsed = classes.indexOf('collapsed') !== -1;
+  
+                var padding = {};
+                
+                if ( collapsed ) 
+                {
+
+                    // Remove the 'collapsed' class from the class list of the element, this sets it back to the expanded state.
+                    classes.splice(classes.indexOf('collapsed'), 1);
+
+                    padding[id] = 300; // In px, matches the width of the sidebars set in .sidebar CSS class
+                    map.easeTo({
+                        padding: padding,
+                        duration: 1000 // In ms, CSS transition duration property for the sidebar 
+                    });
+
+                } 
+
+                else 
+                {
+
+                    padding[id] = 0;
+                    classes.push('collapsed');
+                    map.easeTo({
+                        padding: padding,
+                        duration: 1000
+                    });
+
+                }
+                elem.className = classes.join(' ');
+
+            }
+
 </script>
 
 </body>
