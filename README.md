@@ -1,9 +1,10 @@
 # NYC Top Bikers Data Visualization Project
 
 Welcome to the **NYC Top Bikers Data Visualization Project** GitHub repository! This project focuses on the top bikers in New York City who use Strava. I will be using Strava API (acess via Postman and Python), web scraping with Beautiful Soup, Python for some data retival and EDL, and HTML to run MapBox for presentation purposes.
-
+- Version 1:
 ![image](https://github.com/djara1214/NycStravaHighlights/assets/44910053/d6cd5628-71d9-44dd-aec8-41d468b4bcbd)
-
+- Version 2:
+![Screenshot 2024-05-02 165135_1](https://github.com/djara1214/NycStravaHighlights/assets/44910053/32982e9e-07c3-497d-825b-c3ebcc411ff7)
 
 
 ⚠️This project is a work in progress⚠️
