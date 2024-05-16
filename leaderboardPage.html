@@ -46,12 +46,18 @@ body { margin: 0; padding: 0; }
         font-family: Arial, Helvetica, sans-serif;
         font-size: 20px;
         color: gray;
-        /* overflow: auto; */
-        padding: 10px;
-        white-space: nowrap; 
+        padding: 10px; 
+        white-space: normal; 
+        /* overflow: hidden; */  /* if used, it makes arrows invisible*/
     }
+    #left-sidebar-table {
+    max-width: 88%;         /* Limit maximum width/height of respective table */
+    max-height: 90%;
+    overflow-y: auto; 
+    }
+
     #right-sidebar-table {
-    max-width: 88%; 
+    max-width: 88%;         
     max-height: 90%; 
     overflow-y: auto; 
     }
@@ -71,38 +77,46 @@ body { margin: 0; padding: 0; }
     }
      
     .sidebar-toggle.right {
-        left: -2.5em;
+        left: -1.5em;
     }
      
     .sidebar-toggle:hover {
         color: #0aa1cf;
         cursor: pointer;
     }
-     
+
+     /* Adjusts size of pannel */
     .sidebarLEFT {
         transition: transform 1s;
         z-index: 1;
-        width: 300px;
+        width: 666px;
         height: 100%;
     }
     .sidebarRIGHT {
-        transition: transform 1s;
+        transition: transform 2s;
         z-index: 1;
         width: 750px;
         height: 100%;
     }
      
-    /*
-    toggleSidebar(id) - will open / start as collapsed
-    */
+    
     .left.collapsed {
-        transform: translateX(-295px);
+        transform: translateX(-645px);  /*Amount panel moves to the side when collapsed (toggle or from map)*/
     }
      
     .right.collapsed {
-        transform: translateX(735px);
+        transform: translateX(725px);
     }
 
+    .resized-DATAimage {
+    max-width: 96%; /* Adjust image size */
+    height: auto;
+    }
+    .welcome-message {
+    /* Adjust size for welcome message  -  left panel */
+    font-size: 14px;
+    line-height: 1.5;
+}
 </style>
 
 
@@ -111,7 +125,8 @@ body { margin: 0; padding: 0; }
     <div id="left" class="sidebarLEFT flex-center left collapsed">
 
         <div class="sidebar-content rounded-rect flex-center">           
-            Left Sidebar <div class="sidebar-toggle rounded-rect left" onclick="toggleSidebar('left')" >&rarr;</div>
+            <div class="sidebar-toggle rounded-rect left" onclick="toggleSidebar('left')" >&rarr;</div>
+            <div id="left-sidebar-table"></div>
         </div>
 
     </div>
@@ -119,23 +134,23 @@ body { margin: 0; padding: 0; }
     <div id="right" class="sidebarRIGHT flex-center right collapsed">
 
         <div class="sidebar-content rounded-rect flex-center">
-            <div class="sidebar-toggle rounded-rect right" onclick="toggleSidebar('right')" >&larr;</div>
+             <div class="sidebar-toggle rounded-rect right" onclick="toggleSidebar('right')" >&larr;</div>
             <div id="right-sidebar-table"></div>
         </div>
 
     </div>
 
-</div>     
+</div>
 <script>
-	mapboxgl.accessToken = 'MYKEY';
+	mapboxgl.accessToken = 'myKey';
     const map = new mapboxgl.Map({
         container: 'map',
         center: [-73.88977271965885,40.69681157653693], // starting position [lng, lat]
         zoom: 10.33 // starting zoom
     });
 </script>
-<script>
 
+<script>
     Promise.all([
         fetch('./coord_json.geojson').then(response => response.json()),
         fetch('./AllRiderDataUpTo5_1__1353_FINAL_FIRSTsegTtl.json').then(response => response.json())
@@ -159,35 +174,39 @@ body { margin: 0; padding: 0; }
                     'line-width': 4
                 }
             });
+            // Calling of left panel - welcome message and data-vis shown at start
+            leftDataVis();
 
-// Present loaction data on mouse hover, leaves when not hovering       //GOOD
             const previewLocation = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: true
             });
+
+            // Present loaction data on mouse hover, leaves when not hovering 
             map.on('mouseenter', 'route', function (e) {
                 map.getCanvas().style.cursor = 'pointer';
                 
+                //features - routes(segments)
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
-                
-
+                // Extract data from features - JSON
                 var segname = features[0].properties.SegName;
-                
                 var segNum = features[0].properties.SegNum;
-                  // Find matching 'SegNum' in the second JSON file
+                // Find matching SegNum (in GEOJSON) with Rider Data that has a leaderboard ranking avalible
                 var matchingEntry = additionalData.find(entry => entry.SegNum === segNum && entry.rank === 1);
-
+                // Make color red if we hover over a 'new' segment
                 var currColor=map.getPaintProperty('route','line-color');
                 if (currColor != '#e8d905'){
-                map.setPaintProperty('route', 'line-color', ['case', ['==', ['get', 'SegNum'], segNum], '#e80505', '#888']);
+                    map.setPaintProperty('route', 'line-color', ['case', ['==', ['get', 'SegNum'], segNum], '#e80505', '#888']);
                 }
 
+
+                // If we have a match in records, show popup preview of Route Name, Leader, and their time
                 if (matchingEntry) {
-                    // Retrieve information 'athlete_name' and 'time'
+                    // Get athlete name and time
                     var athleteName = matchingEntry.athlete_name;
                     var time = matchingEntry.time;
 
-                    // Styled HTML popup content - Hover Over quick info
+                    // Pop Up Structure
                     var popupContent = `
                         <div style="text-align: center;">
                             <h2 style="margin: 5px 0;">${segname}</h2>
@@ -197,9 +216,10 @@ body { margin: 0; padding: 0; }
                         </div>
                     `;
 
-                        // add the popup to the map w/ HTML data
-                        previewLocation.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
+                    // Add popup to Hover Location (OVER ROUTE ONLY)
+                    previewLocation.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
                 }
+                // No match (or no data avalible) - Display Segment name    ONLY
                 else {
                     var popupContent = `
                     <div style="text-align: center;">
@@ -207,145 +227,201 @@ body { margin: 0; padding: 0; }
                         <hr style="border: 0.5px solid #ccc; margin: 10px 0;">
                     </div>
                     `;
-
-                    // add the popup to the map w/ HTML data
+                    // Add popup to Hover Location (OVER ROUTE ONLY)
                     previewLocation.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
                 }
-
-                
-                
             });
-            //Exit Hover Over -> change back to gray and remove popup   
+
+            //Exit Hover Over -> change color back to gray and remove popup
             map.on('mouseleave', 'route', () => {
                 map.getCanvas().style.cursor = '';
                 var currColor=map.getPaintProperty('route','line-color');
                 
-                
-                if (currColor[2] ==='#e80505')///red
-                {
+                //if Red, make Gray
+                if (currColor[2] ==='#e80505'){
                     map.setPaintProperty('route', 'line-color', '#888');
                 }
-
+                // Remove Popup
                 previewLocation.remove();
-
             });
 
-            // Present table when route is clicked 
+            // Present Right Panel-LeaderBoard when route is clicked 
             map.on('click', 'route', function (e) {
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
-
+                // If Segment is non empty- Extract data and color Yellow (Active Looking Color)
                 if (features.length > 0) {
                     var segNum = features[0].properties.SegNum;
                     var segname = features[0].properties.SegName;
                     map.setPaintProperty('route', 'line-color', ['case', ['==', ['get', 'SegNum'], segNum], '#e8d905', '#888']);
-
+                    // Match GeoJson and User data
                     var matchedData = additionalData.filter(data => data.SegNum === segNum);
-
+                    // If nonempty, Populate Right Panel-with respective leaderboard and pull out to view
                     if (matchedData.length > 0) {
-                        // Update the right sidebar table content
-                                        
                         var tableContainer = document.getElementById('right-sidebar-table');
                         tableContainer.innerHTML = getPopupHTML(matchedData, segname);
                         toggleSidebar('right');
-
                     }
-                        
-                    
                     else {
-  
+                        // matching data is NOT found 
                         tableContainer.innerHTML = 'No data available for this segment.';
                     }
                 }
-
-    });
-
-                // Reset cursor on mouseout
-                map.on('mouseout', 'route', function () {
-                map.getCanvas().style.cursor = '';
-
             });
 
+            // Reset cursor when cursor moves off route
+            map.on('mouseout', 'route', function () {
+            map.getCanvas().style.cursor = '';
+            });
 
-
-
+            // Clicking on non-segment toggles right pannel and resets color to gray
             map.on('click', function (e) {
                 var features = map.queryRenderedFeatures(e.point, { layers: ['route'] });
-
-                // change back the line color to the original color when clicked out
                 currColor=map.getPaintProperty('route','line-color');
-                if (features.length == 0)
-                {
+                if (features.length == 0){
                     toggleSidebar('right')
                     map.setPaintProperty('route', 'line-color', '#888');
                 }
-                
-                
             });
-});
-});
+
+        });
+    });
 
 
-// generate HTML content for the popup with a table
-        function getPopupHTML(dataArray,segname) {
-                var html = '<h3>'+segname+'</h3>';
-                html += '<table>';
-                html += '<thead><tr><th>Rank</th><th>Athlete Name</th><th>Speed</th><th>Time</th><th>Date</th></tr></thead>';
-                html += '<tbody>';
+        // Set up of left Panel data -        gets data from Jsons and sends them to 2 functions for html structure
+        function leftDataVis (){
+            Promise.all([
+                fetch('./dataAnalysisData/gaps_final.json').then(response => response.json()),
+                fetch('./dataAnalysisData/topPlacements_final.json').then(response => response.json())
+            ]).then(([gapsData, topPlacementData]) => {
+
+                //Set on Correct Element 
+                var tableContainer = document.getElementById('left-sidebar-table');
+                //Define Welcome message to Top
+                var welcomeMessage = document.createElement('div');
+                welcomeMessage.classList.add('welcome-message');
+                welcomeMessage.innerHTML = `
+                <h1>Welcome to My Strava Data Visualization Project!</h1>
+                <h3>Created by Danny Jaramillo</h3>
+                <p>Hey! Welcome to my Strava map.</p>
+                <p>On Strava's own site, you are limited by not seeing all possible segments; lots are hidden. As an extremely active biker and Strava user in NYC, I've always disliked their map either on my phone or computer. So, this is my solution... A way to see all the Biking Segments in NYC AT ONCE!!</p>
+                <p>With this site, you can plan new routes by maximizing possible segment attempts or simply take a peek at who holds the top times in NYC.</p>
+                <p>In this site, you can see riders with the most leaderboard positions, their average placement inside the leaderboard, segments with very similar top times (segments to avoid), number of top leaderboard placements by month, and the map which shows all segments and their respective top riders.</p>
+                <p>All data has been scraped in Spring 2024. I'm sorry to those who just got onto the leaderboards after the scrape.</p>
+                <p>Feel free to explore the data and charts. If you have any questions, don't hesitate to reach out via my GitHub!</p> `;
                 
-                dataArray.forEach(data => {
-                    html += '<tr>';
-                        html += '<td>' + data.rank + '</td>';
-                    html += '<td>' + data.athlete_name + '</td>';
-                    html += '<td>' + data.speed + '</td>';
-                    html += '<td>' + data.time + '</td>';
-                    html += '<td>' + data.date + '</td>';
-                    html += '</tr>';
-                });
+                // Add welcome message to the Topm of tableContainer
+                tableContainer.appendChild(welcomeMessage);
+                // Add Two Charts - Top sub 25 placement(with limit to change how many to show) AND rides to avoid (smallest difference in top times)
+                tableContainer.innerHTML += getTopPlacement(topPlacementData, 15) + getGaps(gapsData);
 
-                html += '</tbody>';
-                html += '</table>';
-                return html;
+                // Add images
+                var image1 = document.createElement('img');
+                image1.classList.add('resized-DATAimage');
+                image1.src = './dataAnalysisData/bokeh_plot_density_top_10.png';
+                image1.alt = 'Density Plot of Rank for top 10 athletes with the most sub 25 leadboard placements on strava';
+                
+                var image2 = document.createElement('img');
+                image2.classList.add('resized-DATAimage');
+                image2.src = './dataAnalysisData/bokeh_plot_placement_by_month.png';
+                image2.alt = 'Bar Chart - Presents how many sub 25 segment leadboard spots were completed by month- MultiYear(entirety of data)';
+
+                // Add images to the panel
+                tableContainer.appendChild(image1);
+                tableContainer.appendChild(document.createElement("br")); // Vertical Stacking
+                tableContainer.appendChild(image2);
+                tableContainer.scrollTop = 0; // Start at top of left panel
+                    toggleSidebar('left'); // Make panel shown at start
+            });
         }
-// popout right sidebar 
-        function toggleSidebar(id) 
-            {
-
-                var elem = document.getElementById(id);
-                var classes = elem.className.split(' ');
-                var collapsed = classes.indexOf('collapsed') !== -1;
-  
-                var padding = {};
-                
-                if ( collapsed ) 
-                {
-
-                    // Remove the 'collapsed' class from the class list of the element, this sets it back to the expanded state.
-                    classes.splice(classes.indexOf('collapsed'), 1);
-
-                    padding[id] = 300; // In px, matches the width of the sidebars set in .sidebar CSS class
-                    map.easeTo({
-                        padding: padding,
-                        duration: 1000 // In ms, CSS transition duration property for the sidebar 
-                    });
-
-                } 
-
-                else 
-                {
-
-                    padding[id] = 0;
-                    classes.push('collapsed');
-                    map.easeTo({
-                        padding: padding,
-                        duration: 1000
-                    });
-
-                }
+        // Table Structure for Top (n) athetes with the most leaderboard positions
+        // n is number of riders shown - can be modified in leftDataVis()
+        function getTopPlacement(dataArray, limit) {
+            var html = '<h3>' + "Riders with the Most <br> Leaderboard Placements" + '</h3>';
+            html += '<table>';
+            html += '<thead><tr><th>Athlete Name</th><th>Number of sub 25 Placements <br> for NYC Leadboards</th></tr></thead>';
+            html += '<tbody>';
+            
+            for (var i = 0; i < Math.min(dataArray.length, limit); i++) {
+                html += '<tr>';
+                html += '<td>' + dataArray[i].athlete_name + '</td>';
+                html += '<td>' + dataArray[i].count + '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody>';
+            html += '</table>';
+            return html;
+        }
+        // Table structure for Segments with Closest Top Times 
+        function getGaps(dataArray) {
+            var html = '<h3>' + "Segments with Closest Top times" + '</h3>';
+            html+= '<h5>' + "If you want to break some records, try to avoid these <br>It isn't impossible; just hard" + '</h5>';
+            html += '<table>';
+            html += '<thead><tr><th>Segment Name</th><th>Avg Difference <br> (in seconds)    </th></tr></thead>';
+            html += '<tbody>';
+            
+            dataArray.forEach(data => {
+                html += '<tr>';
+                html += '<td><a href="#" onclick="openSegmentInNewTab(' + data.SegNum + ')">' + data.SegName + '</a></td>';
+                html += '<td>' + data.time + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            html += '</table>';
+            return html;
+        }
+        // Makes segments shown with fun getGaps() to be clickable, send to segment page on Strava
+        function openSegmentInNewTab(segmentNum) {
+            var url = 'https://www.strava.com/segments/' + segmentNum;
+            window.open(url, '_blank');
+        }
+        //Structure for right panel leaderboard
+        function getPopupHTML(dataArray,segname) {
+            var html = '<h3>'+segname+'</h3>';
+            html += '<table>';
+            html += '<thead><tr><th>Rank</th><th>Athlete Name</th><th>Speed</th><th>Time</th><th>Date</th></tr></thead>';
+            html += '<tbody>';
+            
+            dataArray.forEach(data => {
+                html += '<tr>';
+                    html += '<td>' + data.rank + '</td>';
+                html += '<td>' + data.athlete_name + '</td>';
+                html += '<td>' + data.speed + '</td>';
+                html += '<td>' + data.time + '</td>';
+                html += '<td>' + data.date + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            html += '</table>';
+            return html;
+        }
+        // Functionality of SideBars - add or remove from collpase to toggle sidebar movement either in or out view
+        function toggleSidebar(id) {
+            var elem = document.getElementById(id);
+            var classes = elem.className.split(' ');
+            var collapsed = classes.indexOf('collapsed') !== -1;
+            var padding = {};
+            if (collapsed) {
+                // Remove the 'collapsed' class from the class list of the element, this sets it back to the expanded state.
+                classes.splice(classes.indexOf('collapsed'), 1);
+                padding[id] = 300; // In px, matches the width of the sidebars set in .sidebar CSS class
+                map.easeTo({
+                    padding: padding,
+                    duration: 1000 // In ms, CSS transition duration property for the sidebar matches this value
+                });
+            } 
+            else {
+                padding[id] = 0;
+                // Add the 'collapsed' class to the class list of the element
+                classes.push('collapsed');
+                map.easeTo({
+                    padding: padding,
+                    duration: 1000
+                });
+            }
+                //Update the class list on the element
                 elem.className = classes.join(' ');
-
             }
 
 </script>
-
 </body>
 </html>
