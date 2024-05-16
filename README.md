@@ -31,8 +31,13 @@ The primary goal of this project is to showcase the best riders in New York City
 
 Over the years, I've found this fragmentation of segments on Strava's map to be a significant inconvenience. So, I decided to create my own solution.
 
-1. **Data Collection**: Utilizing the Strava API, we retrieve segment numbers that represent popular biking routes in New York City. Then, by employing web scraping techniques with Beautiful Soup, we extract leader board data for these segments.
-
+- **Data Collection**: Leveraging the Strava API, we gather segment numbers representing biking routes across New York City. Initially, we define arbitrary coordinates encompassing NYC, which are then divided into smaller n boxes. These box coordinates serve as inputs for the Strava API to retrieve the top 10 segments in each area. This process is iterated numerous times with varying n values to ensure comprehensive segment coverage. Subsequently, employing web scraping techniques with Beautiful Soup, we extract leader board data for these segments. The scraping is conducted using my personal Strava account, which includes a paid subscription, granting access to the desired leader boards. This data acquisition returns:
+		
+	    - User names
+	    - User ID numbers
+	    - Completion times
+	    - Rankings 
+	    - Average Speeds
 2. **Data Visualization**: Once the data is collected, I will also leverage Python's data visualization libraries (e.g., Matplotlib, Plotly) to create informative and engaging visualizations that showcase the top bikers and their achievements on the identified segments. In addition to python, I will use MAPBOX GL-JS to plot all biking segments in NYC. All Segment data will be shown **at** **once** and showcase their top riders. Something hard to do on Stravas own website.
 
 
