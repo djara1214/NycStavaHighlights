@@ -1,14 +1,10 @@
-# NYC Top Bikers Data Visualization Project
+# NYC's Fastest Strava Bikers 
 
-Welcome to the **NYC Top Bikers Data Visualization Project** GitHub repository! This project focuses on the top bikers in New York City who use Strava. I will be using Strava API (acess via Postman and Python), web scraping with Beautiful Soup, Python for some data retival and EDL, and HTML to run MapBox for presentation purposes.
-- Version 1:
-![image](https://github.com/djara1214/NycStravaHighlights/assets/44910053/d6cd5628-71d9-44dd-aec8-41d468b4bcbd)
-- Version 2:
-![Screenshot 2024-05-02 165135_1](https://github.com/djara1214/NycStravaHighlights/assets/44910053/32982e9e-07c3-497d-825b-c3ebcc411ff7)
+Welcome to my project! This is all about the speed demons tearing up NYC's streets on two wheels, courtesy of Strava. Here, I'm shining a spotlight on the fastest riders and the segments they dominate, giving you a bird's-eye view of NYC's cycling hotspots. My toolkit? Python for snagging data from Strava's API and doing a bit of web scraping, plus Bokeh for slick data visualizations. Oh, and HTML comes into play for sprucing up my presentation with MapBox GL JS. Come on in and let's dive into the world of NYC's cycling scene together!
 
 
-⚠️This project is a work in progress⚠️
-## ⚠️Currently in phase 2⚠️
+![hippo](https://github.com/djara1214/DansBest_Route/blob/6e51a5f79d3b6dde3cf24df18e3601b206270965/MapMoving.gif)
+
 
 ## Table of Contents
 
@@ -18,51 +14,28 @@ Welcome to the **NYC Top Bikers Data Visualization Project** GitHub repository! 
 - [Data Collection](#data-collection)
 - [Data Visualization](#data-visualization)
 - [Contributing](#contributing)
-- [License](#license)
+
 
 ## Project Overview
 
-The primary goal of this project is to showcase the top bikers in New York City by utilizing data from the Strava API and web scraping techniques. The project involves two main phases:
+The primary goal of this project is to showcase the best riders in New York City and assist those aiming for sub-25 leader board rankings.
+
+- Discover which riders hold the most sub-25 positions and how they compare to other top riders.
+- Identify segments with the closest top times, enabling riders to avoid the most challenging segments. Since they'll be competing for extremely similar times to others therefore possibly not making the sub-25 leader board even with stellar times. 
+- Explore the months in which these sub-25 times were achieved.
+- Gain a comprehensive overview of **all** biking segments in NYC.
+    - Unlike on their own site, where segments are often fragmented or selectively displayed, here you can view them all at once. Some of their map issues can seen as:
+        - Some segments appear briefly and then vanish.
+        - Some segments just simply remain hidden.
+        - Only the most popular segments in an area are typically shown.
+
+Over the years, I've found this fragmentation of segments on Strava's map to be a significant inconvenience. So, I decided to create my own solution.
 
 1. **Data Collection**: Utilizing the Strava API, we retrieve segment numbers that represent popular biking routes in New York City. Then, by employing web scraping techniques with Beautiful Soup, we extract leader board data for these segments.
 
 2. **Data Visualization**: Once the data is collected, I will also leverage Python's data visualization libraries (e.g., Matplotlib, Plotly) to create informative and engaging visualizations that showcase the top bikers and their achievements on the identified segments. In addition to python, I will use MAPBOX GL-JS to plot all biking segments in NYC. All Segment data will be shown **at** **once** and showcase their top riders. Something hard to do on Stravas own website.
 
-## Installation
 
-To run this project locally, follow these steps:
-
-1. Clone this repository to your local machine:
-
-   ```bash
-   git clone https://github.com/your-username/nyc-top-bikers.git
-   cd nyc-top-bikers
-   2.  Install the required dependencies using pip:
-    
-    bashCopy code
-    
-    `pip install -r requirements.txt` 
-    
-3.  Obtain API keys:
-    
-    -   You'll need a Strava API key to access segment information.
-    -   If any web scraping is required, ensure that you have access to the necessary website and are aware of its terms of use.
-4.  Configure your API keys:
-    
-    -   Create a `.env` file in the project's root directory.
-        
-    -   Add your API keys in the following format:
-        
-        plaintextCopy code
-        
-        `STRAVA_API_KEY=your_strava_api_key_here` 
-        
-5.  Run the project:
-    
-    bashCopy code
-    
-    `python main.py` 
-    
 
 ## Usage
 
@@ -91,6 +64,3 @@ We welcome contributions from the community! If you'd like to contribute to this
 
 Please ensure that your contributions align with the project's goals and coding standards.
 
-## License
-
-This project is licensed under the [MIT License](https://chat.openai.com/LICENSE). Feel free to use, modify, and distribute the code as permitted by the license.
