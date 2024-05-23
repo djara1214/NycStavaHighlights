@@ -7,8 +7,6 @@ Welcome to my project! This is all about the speed demons tearing up NYC's stree
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Installation](#installation)
-- [Usage](#usage)
 - [Data Collection](#data-collection)
 - [Data Visualization](#data-visualization)
 - [Contributing](#contributing)
@@ -28,42 +26,33 @@ The primary goal of this project is to showcase the best riders in New York City
         - Only the most popular segments in an area are typically shown.
 
 Over the years, I've found this fragmentation of segments on Strava's map to be a significant inconvenience. So, I decided to create my own solution.
-
-- **Data Collection**: Leveraging the Strava API, we gather segment numbers representing biking routes across New York City. Initially, we define arbitrary coordinates encompassing NYC, which are then divided into smaller n boxes. These box coordinates serve as inputs for the Strava API to retrieve the top 10 segments in each area. This process is iterated numerous times with varying n values to ensure comprehensive segment coverage. Subsequently, employing web scraping techniques with Beautiful Soup, we extract leader board data for these segments. The scraping is conducted using my personal Strava account, which includes a paid subscription, granting access to the desired leader boards. This data acquisition returns:
+## Data Collection
+Leveraging the Strava API, we gather segment numbers representing biking routes across New York City. Initially, we define arbitrary coordinates encompassing NYC, which are then divided into smaller n boxes. These box coordinates serve as inputs for the Strava API to retrieve the top 10 segments in each area. This process is iterated numerous times with varying n values to ensure comprehensive segment coverage. Subsequently, employing web scraping techniques with Beautiful Soup, we extract leader board data for these segments. The scraping is conducted using my personal Strava account, which includes a paid subscription, granting access to the desired leader boards. This data acquisition returns:
 		
 	    - User names
 	    - User ID numbers
 	    - Completion times
 	    - Rankings 
 	    - Average Speeds
-2. **Data Visualization**: Once the data is collected, I will also leverage Python's data visualization libraries (e.g., Matplotlib, Plotly) to create informative and engaging visualizations that showcase the top bikers and their achievements on the identified segments. In addition to python, I will use MAPBOX GL-JS to plot all biking segments in NYC. All Segment data will be shown **at** **once** and showcase their top riders. Something hard to do on Stravas own website.
-
-
-
-## Usage
-
-This project will present Top bikers in a given area. I will present NYC, but with placing coordinates in any area where Strava data is recorded; you can then see it in that area.
-
-## Data Collection
-
-Contact Stava API to find all segments in given area
-Scrape Stravas site to get all athlete info
-
 ## Data Visualization
+Once the data was collected, I began the ETL process. After un-decoding all location data, the segment data was plotted with Mapbox Gl JS. Segments are shown as clickable lines on the map. Hovering over each segment shows you quick information - **Segment name, and its leader with their respective time.** Then when clicking, the hovering data disappears and a panel pans from the right with the full **top 25 leader board**. This allows all users to clearly see all available segments throughout NYC, without the need to hover over a new location to load in more data. 
+ 
+When initially loading in the left panel pans over, presented in this panel is a welcome message and some data insights. All data shown in explained in the [Project Overview](#project-overview)
+ Pandas data frames were used for all data manipulation.
+ Segment and user data were stored locally on `CSV` files. Here files were easily combined into larger normalized data sets *(which is not presented in this repo)*. Bokeh was then used for chart creation, due to its ease of use and relatively overall good looking charts.
 
-MapBox GL-JS
-Using this service I will plot converted Strava API data to geo json and present **all** segments at one time. Making each segment clickable with data presentation at hovering and clicking. 
 
 
 ## Contributing
-
-We welcome contributions from the community! If you'd like to contribute to this project, follow these steps:
-
+This has been a random idea floating in my head, I plan to add more in the future i.e. Search bar , starting and ending markers, and more.. 
+So if anyone wants to add more or play with this, let me know!!
+create an issue to let me know or simply:
 1.  Fork this repository to your GitHub account.
-2.  Create a new branch with a descriptive name.
+2.  Create a new branch with a killer name.
 3.  Make your changes and improvements.
-4.  Test thoroughly to ensure everything works as expected.
-5.  Submit a pull request, detailing the changes you made.
+4.  Test it! *I could hand a helping hand if you need*
+5.  Submit a pull request, with the changes you have made.
 
-Please ensure that your contributions align with the project's goals and coding standards.
 
+Thanks for visiting my repo and hopefully this has made you want to rip up the mean streets of New York,
+just dont forget your helmet!
