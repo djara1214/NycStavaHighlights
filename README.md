@@ -2,9 +2,7 @@
 
 Welcome to my project! This is all about the speed demons tearing up NYC's streets on two wheels, courtesy of Strava. Here, I'm shining a spotlight on the fastest riders and the segments they dominate, giving you a bird's-eye view of NYC's cycling hotspots. My toolkit? Python for snagging data from Strava's API and doing a bit of web scraping, plus Bokeh for slick data visualizations. Oh, and HTML comes into play for sprucing up my presentation with MapBox GL JS. Come on in and let's dive into the world of NYC's cycling scene together!
 
-
-![hippo](https://github.com/djara1214/DansBest_Route/blob/6e51a5f79d3b6dde3cf24df18e3601b206270965/MapMoving.gif)
-
+![hippo](https://github.com/djara1214/NycStravaHighlights/blob/b6d179f9fcf2d143186aac4d9596999eef97fb12/DataVis/MapMoving.gif)
 
 ## Table of Contents
 
