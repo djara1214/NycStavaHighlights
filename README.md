@@ -44,13 +44,13 @@ When initially loading in the left panel pans over, presented in this panel is a
 
 
 ## Contributing
-This has been a random idea floating in my head, I plan to add more in the future i.e. Search bar , starting and ending markers, and more.. 
+This has been a random idea floating in my head, I plan to add more in the future i.e. Search bar , starting and ending markers, and more....
 So if anyone wants to add more or play with this, let me know!!
 create an issue to let me know or simply:
 1.  Fork this repository to your GitHub account.
 2.  Create a new branch with a killer name.
 3.  Make your changes and improvements.
-4.  Test it! *I could hand a helping hand if you need*
+4.  Test it! *I could lend a helping hand if you need*
 5.  Submit a pull request, with the changes you have made.
 
 
